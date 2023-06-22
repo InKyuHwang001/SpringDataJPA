@@ -9,8 +9,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import study.datajpa.dto.MemberDTO;
 import study.datajpa.entity.Member;
+import study.datajpa.entity.Team;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,6 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MemberRepositoryTest {
     @Autowired
     MemberRepository memberRepository;
+    @Autowired
+    private TeamRepository teamRepository;
+    @PersistenceContext
+    private EntityManager em;
 
     @Test
     public void testMember() {
@@ -92,6 +100,9 @@ class MemberRepositoryTest {
                 = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
         Page<Member> page = memberRepository.findByAge(10, pageRequest);
 
+        //페이지 유지하며 엔티티를 DTO로 변환하기
+        Page<MemberDTO> dtoPage = page.map(m -> new MemberDTO());
+
         //then
         List<Member> content = page.getContent(); //조회된 데이터
         assertThat(content.size()).isEqualTo(3); //조회된 데이터 수
@@ -100,5 +111,52 @@ class MemberRepositoryTest {
         assertThat(page.getTotalPages()).isEqualTo(2); //전체 페이지 번호
         assertThat(page.isFirst()).isTrue(); //첫번째 항목인가?
         assertThat(page.hasNext()).isTrue(); //다음 페이지가 있는가?
+
+    }
+
+    @Test
+    public void bulkUpdate() throws Exception {
+
+        //given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 21));
+        memberRepository.save(new Member("member4", 20));
+        memberRepository.save(new Member("member5", 40));
+
+        //when
+        int resultCount = memberRepository.bulkAgePlus(20);
+        assertThat(resultCount).isEqualTo(3);
+
+    }
+
+    @Test
+    public void findMemberLazy() throws Exception {
+        //given
+        //member1->teamA
+        //member2->teamB
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        memberRepository.save(new Member("member1", 10, teamA));
+        memberRepository.save(new Member("member2", 20, teamB));
+        em.flush();
+        em.clear();
+
+        //when
+        //select Member N + 1
+
+        //List<Member> members = memberRepository.findAll();
+
+        //N+1 해결(미완)
+        List<Member> members = memberRepository.findMemberFetchJoin();
+
+
+        //then
+        for (Member member : members) {
+            member.getTeam().getName();
+        }
+
     }
 }

@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) //proxy 객체만들때 사용하기에
 @ToString(of = {"id", "username", "age"})
-public class Member {
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue
