@@ -1,6 +1,5 @@
 package study.datajpa.repository;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +15,7 @@ import study.datajpa.entity.Team;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,12 +36,12 @@ class MemberRepositoryTest {
         Member savedMember = memberRepository.save(member);
         Member findMember =
                 memberRepository.findById(savedMember.getId()).get(); //없다면 NoSuchElementException
-        Assertions.assertThat(findMember.getId()).isEqualTo(member.getId());
+        assertThat(findMember.getId()).isEqualTo(member.getId());
 
-        Assertions.assertThat(findMember.getUsername()).isEqualTo(member.getUsername());
-        Assertions.assertThat(findMember).isEqualTo(member); //JPA 엔티티 동일성 보장
+        assertThat(findMember.getUsername()).isEqualTo(member.getUsername());
+        assertThat(findMember).isEqualTo(member); //JPA 엔티티 동일성 보장
     }
-
+    
     @Test
     public void basicCRUD() {
         Member member1 = new Member("member1");
@@ -80,9 +80,9 @@ class MemberRepositoryTest {
         memberRepository.save(member2);
 
         List<Member> result = memberRepository.findByUsernameAndAgeGreaterThan("AAA", 15);
-        Assertions.assertThat(result.get(0).getUsername()).isEqualTo("AAA");
-        Assertions.assertThat(result.get(0).getAge()).isEqualTo(20);
-        Assertions.assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0).getUsername()).isEqualTo("AAA");
+        assertThat(result.get(0).getAge()).isEqualTo(20);
+        assertThat(result.size()).isEqualTo(1);
 
     }
 
