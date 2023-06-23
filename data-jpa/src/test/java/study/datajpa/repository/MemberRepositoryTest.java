@@ -15,7 +15,6 @@ import study.datajpa.entity.Team;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,7 +40,7 @@ class MemberRepositoryTest {
         assertThat(findMember.getUsername()).isEqualTo(member.getUsername());
         assertThat(findMember).isEqualTo(member); //JPA 엔티티 동일성 보장
     }
-    
+
     @Test
     public void basicCRUD() {
         Member member1 = new Member("member1");
